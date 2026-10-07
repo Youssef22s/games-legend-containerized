@@ -1,0 +1,44 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: games-legend-db
+
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/games_legend.sql:/docker-entrypoint-initdb.d/games_legend.sql:ro
+
+  backend:
+    build: ./backend
+    container_name: games-legend-backend
+
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      FRONTEND_URL: ${FRONTEND_URL}
+
+    ports:
+      - "3000:5000"
+
+  frontend:
+    build: ./frontend
+    container_name: games-legend-frontend
+
+    ports:
+      - "8080:80"
+
+volumes:
+  mysql_data:
